@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>RIP Windows 10 | Countdown to Windows 10's End of Life</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      overscroll-behavior-y: none;
+      overscroll-behavior-x: none;
+      height: 100vh;
+      background: url('wallpaper.webp') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+      position: relative;
+      overflow: hidden;
+    }
+    .container {
+      text-align: center;
+      background-color: rgba(0, 0, 0, 0.4);
+      padding: 2rem;
+      border-radius: 12px;
+      z-index: 1;
+    }
+    h1 { 
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    .countdown { 
+      font-size: 2rem;
+      word-wrap: break-word;
+    }
+    .credits {
+      background-color: rgba(0, 0, 0, 0.4);
+      padding: 0.7rem 1.5rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      position: absolute;
+      bottom: 20px;
+      text-align: center;
+      width: auto;
+      max-width: 80%;
+      z-index: 1;
+    }
+    .credits a {
+      color: #01adef;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .credits a:hover {
+      color: #00bfff;
+      text-decoration: underline;
+    }
+    
+    /* Media queries for responsive design */
+    @media (max-width: 768px) {
+      body {
+        height: 100vh;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      .container {
+        padding: 1.5rem;
+        max-width: 90%;
+        width: 90%;
+        margin-bottom: 90px;
+      }
+      h1 {
+        font-size: clamp(1.5rem, 7vw, 2.5rem);
+      }
+      .countdown {
+        font-size: clamp(1.2rem, 5vw, 2rem);
+      }
+      .credits {
+        position: fixed;
+        bottom: 25px;
+        left: 0;
+        right: 0;
+        margin: 0 auto;
+        width: 90%;
+        max-width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Windows 10 Reaches End of Life in</h1>
+    <div class="countdown" id="countdown">Loading...</div>
+  </div>
+  <div class="credits">
+    <span>Created by <a href="https://atserver.us" target="_blank">Xcissors</a> and <a href="https://boxersteavee.dev" target="_blank">Boxersteavee</a> on <a href="https://github.com/Xcissors280/Windows-10-EOL" target="_blank">GitHub</a></span>
+    <p><br><a href="https://boxersteavee.dev/projects/rip-windows10/" target="_blank" rel="noopener noreferrer">What does this mean?</a></p>
+  </div>
+  <script>
+    // Use performance API for more accurate timing if available
+    const now = () => (window.performance && performance.now) ? performance.now() : Date.now();
+    
+    const countdownEl = document.getElementById('countdown');
+    const targetDate = 1760511599999; // October 15, 2025, 6:59:59.999 UTC
+    
+    // Server-provided timestamp
+    const serverTime = SERVER_TIMESTAMP_PLACEHOLDER;
+    
+    // Variables for tracking time
+    let startTime = now();
+    let lastTime = startTime;
+    let elapsedTime = 0;
+    let animationFrameId;
+    
+    // Only check for time manipulation every few frames
+    let frameCount = 0;
+    const CHECK_EVERY_N_FRAMES = 10; // Check time manipulation every 10 frames
+    
+    function updateCountdown() {
+      const currentTime = now();
+      frameCount++;
+      
+      // Only check for time manipulation periodically to save resources
+      if (frameCount >= CHECK_EVERY_N_FRAMES) {
+        const expectedElapsed = currentTime - lastTime;
+        
+        // If more than 5 seconds have passed when we expected ~167ms * 10 frames (about 1.67s)
+        // then the system clock has likely been tampered with
+        if (expectedElapsed > 5000) {
+          // Don't add this suspicious time jump to our elapsed counter
+          startTime = currentTime - elapsedTime;
+        } else {
+          // Time seems normal, update elapsed time
+          elapsedTime = currentTime - startTime;
+        }
+        
+        lastTime = currentTime;
+        frameCount = 0;
+      } else {
+        // For most frames, just update elapsed time without checks
+        elapsedTime = currentTime - startTime;
+      }
+      
+      // Calculate actual time based on server time + our tracked elapsed time
+      const actualTime = serverTime + (elapsedTime / 1000) * 1000; // Convert to milliseconds
+      const difference = targetDate - actualTime;
+      
+      if (difference <= 0) {
+        countdownEl.innerText = "Windows 10 has reached end of life!";
+        cancelAnimationFrame(animationFrameId);
+        return;
+      }
+      
+      // Calculate time units (only when needed for display)
+      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+      
+      countdownEl.innerText = `${days} days, ${hours} hours, ${minutes} minutes, ${seconds} seconds`;
+      
+      // Request next frame
+      animationFrameId = requestAnimationFrame(updateCountdown);
+    }
+    
+    // Start the animation loop
+    animationFrameId = requestAnimationFrame(updateCountdown);
+  </script>
+</body>
+</html>
