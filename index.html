@@ -95,82 +95,11 @@
 </head>
 <body>
   <div class="container">
-    <h1>Windows 10 Reaches End of Life in</h1>
-    <div class="countdown" id="countdown">Loading...</div>
+    <h1>Windows 10 Has Reached End Of Life</h1>
   </div>
   <div class="credits">
     <span>Created by <a href="https://atserver.us" target="_blank">Xcissors</a> and <a href="https://boxersteavee.dev" target="_blank">Boxersteavee</a> on <a href="https://github.com/Xcissors280/Windows-10-EOL" target="_blank">GitHub</a></span>
     <p><br><a href="https://boxersteavee.dev/projects/rip-windows10/" target="_blank" rel="noopener noreferrer">What does this mean?</a></p>
   </div>
-  <script>
-    // Use performance API for more accurate timing if available
-    const now = () => (window.performance && performance.now) ? performance.now() : Date.now();
-    
-    const countdownEl = document.getElementById('countdown');
-    const targetDate = 1760511599999; // October 15, 2025, 6:59:59.999 UTC
-    
-    // Server-provided timestamp
-    const serverTime = SERVER_TIMESTAMP_PLACEHOLDER;
-    
-    // Variables for tracking time
-    let startTime = now();
-    let lastTime = startTime;
-    let elapsedTime = 0;
-    let animationFrameId;
-    
-    // Only check for time manipulation every few frames
-    let frameCount = 0;
-    const CHECK_EVERY_N_FRAMES = 10; // Check time manipulation every 10 frames
-    
-    function updateCountdown() {
-      const currentTime = now();
-      frameCount++;
-      
-      // Only check for time manipulation periodically to save resources
-      if (frameCount >= CHECK_EVERY_N_FRAMES) {
-        const expectedElapsed = currentTime - lastTime;
-        
-        // If more than 5 seconds have passed when we expected ~167ms * 10 frames (about 1.67s)
-        // then the system clock has likely been tampered with
-        if (expectedElapsed > 5000) {
-          // Don't add this suspicious time jump to our elapsed counter
-          startTime = currentTime - elapsedTime;
-        } else {
-          // Time seems normal, update elapsed time
-          elapsedTime = currentTime - startTime;
-        }
-        
-        lastTime = currentTime;
-        frameCount = 0;
-      } else {
-        // For most frames, just update elapsed time without checks
-        elapsedTime = currentTime - startTime;
-      }
-      
-      // Calculate actual time based on server time + our tracked elapsed time
-      const actualTime = serverTime + (elapsedTime / 1000) * 1000; // Convert to milliseconds
-      const difference = targetDate - actualTime;
-      
-      if (difference <= 0) {
-        countdownEl.innerText = "Windows 10 has reached end of life!";
-        cancelAnimationFrame(animationFrameId);
-        return;
-      }
-      
-      // Calculate time units (only when needed for display)
-      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-      
-      countdownEl.innerText = `${days} days, ${hours} hours, ${minutes} minutes, ${seconds} seconds`;
-      
-      // Request next frame
-      animationFrameId = requestAnimationFrame(updateCountdown);
-    }
-    
-    // Start the animation loop
-    animationFrameId = requestAnimationFrame(updateCountdown);
-  </script>
 </body>
 </html>
